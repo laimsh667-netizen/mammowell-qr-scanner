@@ -7,4 +7,9 @@ function assetId(text){let raw=String(text||'').trim();try{const u=new URL(raw);
 async function close(){if(!scanner)return;let s=scanner;scanner=null;try{await s.stop()}catch(e){}try{s.clear()}catch(e){}stop.style.display='none';start.style.display='block'}
 start.onclick=async()=>{start.disabled=true;msg.textContent='正在啟動相機…';try{if(!window.isSecureContext)throw Error('請使用 HTTPS');if(!window.Html5Qrcode)throw Error('掃描程式載入失敗');scanner=new Html5Qrcode('reader');await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},async result=>{if(done)return;const id=assetId(result);if(!id){msg.textContent='無法從 QR Code 取得財產編號';return}done=true;msg.textContent='已辨識 '+id+'，正在返回盤點頁…';await close();try{const url=new URL(appReturn);if(url.hostname!=='script.google.com')throw Error('返回網址不正確');url.searchParams.set('id',id);location.assign(url.toString())}catch(e){msg.textContent='無法返回盤點頁：'+e.message}},()=>{});start.style.display='none';stop.style.display='block';msg.textContent='請對準 QR Code'}catch(e){msg.textContent='相機無法啟動：'+(e.message||e);msg.className='error';await close();start.disabled=false}};
 stop.onclick=async()=>{await close();start.disabled=false;msg.textContent='相機已關閉'};
+  
+window.addEventListener('load', () => {
+  document.getElementById('start').click();
+});
+
 </script></body></html>
